@@ -1,0 +1,12 @@
+{
+  "cron": {
+    "daily-email": {
+      "schedule": "0 7 * * *",
+      "url": "/api/daily-summary"
+    },
+    "daily-push": {
+      "schedule": "0 20 * * *",
+      "url": "/api/send-daily-notifications"
+    }
+  }
+}

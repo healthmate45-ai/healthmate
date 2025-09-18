@@ -1,0 +1,5 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+export async function GET(){ const { data: profiles } = await supabase.from('profiles').select('*'); for(const p of profiles||[]){ const { data: metric } = await supabase.from('metrics').select('*').eq('user_id', p.user_id).order('day',{ascending:false}).limit(1).single().catch(()=>({data:null})); const text = `Hi ${p.name||'there'},\n- Weight: ${metric?.weight_kg ?? 'N/A'}\n- Steps: ${metric?.steps ?? 'N/A'}\n- Sleep: ${metric?.sleep_hours ?? 'N/A'}`; if(p.email){ await fetch('https://api.resend.com/emails', { method:'POST', headers:{ Authorization:`Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type':'application/json' }, body: JSON.stringify({ from: 'HealthMate <noreply@healthmate.ai>', to: p.email, subject: 'Your Daily Health Summary', text }) }); } } return NextResponse.json({ sent:true }); }
